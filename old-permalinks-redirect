@@ -1,0 +1,41 @@
+/*
+Redirect Postname permalinks to a custom permalink structured url in Wordpress
+
+# How it works
+It would check your post slug in Request url and would redirect all your Postname permalinks to
+the blog's updated permalinks with Response 301 code. If you have changed your permalink
+structure for your posts to something like:
+
+🔗 Old permalink structure 
+/%postname%/
+
+✨ New permalink Structure 
+/blog/%postname%/
+
+✅ All REQUEST_URI to /%postname%/ will redirect to /blog/%postname%/
+
+🤓 This might not be the best way to solve this issue but I hope you all may help me to improve.
+
+# How to use
+Simply copy and paste this code in your child theme's functions file to test it.
+*/
+
+function rudr_post_permalink( $url ){
+$request_uri = urldecode($_SERVER['REQUEST_URI']);
+$the_slug = "/$request_uri/";
+$args = array(
+  'name'        => $the_slug,
+  'post_type'   => 'post',
+  'post_status' => 'publish',
+  'numberposts' => 1
+);
+$my_posts = get_posts($args);
+if( $my_posts ) :
+  $post_url = get_post_permalink($my_posts[0]->ID);
+  wp_redirect($post_url, 301);
+  die();
+endif;
+
+}
+
+add_filter( 'template_redirect', 'rudr_post_permalink');
